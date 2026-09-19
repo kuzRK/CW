@@ -1,9 +1,18 @@
+#include <pthread.h>
+#include <system_error>
 #include <cstddef>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <random>
 #include <stdexcept>
+
+struct Task {
+    double radius;
+    std::size_t tests;
+    std::size_t seed;
+    std::size_t result = 0;
+};
 
 bool isInside(double x, double y, double r)
 {
@@ -29,6 +38,17 @@ std::size_t calc(double r, std::size_t tests, std::size_t seed)
   }
 
   return inside;
+}
+void* taskAdapter(void* data) {
+    auto* task = static_cast< Task* >(data);
+
+    task->result = calc(
+        task->radius,
+        task->tests,
+        task->seed
+    );
+
+    return nullptr;
 }
 
 int main()
